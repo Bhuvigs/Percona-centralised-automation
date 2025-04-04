@@ -2,32 +2,50 @@ pipeline {
     agent any
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Bhuvigs/Percona-centralised-automation.git'
+                git branch: 'rpm', url: 'https://github.com/Bhuvigs/Percona-centralised-automation.git'
             }
         }
 
-         stage('Setup Environment') {
+        stage('Setup Environment') {
             steps {
-                sh 'SUDO_ASKPASS=/etc/askpass-jenkins.sh sudo -A apt update && sudo -A apt install dpkg-dev -y'
+                sh '''
+                    echo "🔧 Updating system and installing dependencies..."
+                    SUDO_ASKPASS=/etc/askpass-jenkins.sh sudo -A apt update
+                    SUDO_ASKPASS=/etc/askpass-jenkins.sh sudo -A apt install dpkg-dev rpm -y
+                '''
             }
         }
 
-          stage('Build DEB Package') {
+        stage('Build RPM Package') {
             steps {
-                sh 'mkdir -p package/usr/local/bin'
-                sh 'cp collect_data.sh package/usr/local/bin/'
-                sh 'chmod +x package/usr/local/bin/collect_data.sh'
-                sh 'mkdir -p package/DEBIAN'
-                sh 'echo "Package: collect-info\nVersion: 1.0\nSection: utils\nPriority: optional\nArchitecture: all\nMaintainer: bhuvan bhuvigs12345@gmail.com\nDescription: A script that collects system information using gum UI." > package/DEBIAN/control'
-                sh 'dpkg-deb --build package collect-info_1.0_all.deb'
+                sh 'echo "🚀 Starting RPM build process..."'
+                sh 'which rpmbuild || echo "⚠️ rpmbuild not found!"'
+
+                sh '''#!/bin/bash
+                    set -e
+                    mkdir -p rpm_build/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+                    mkdir -p rpm_build/usr/local/bin
+
+                    cp collect_data.sh rpm_build/SOURCES/
+                    cp myscript.spec rpm_build/SPECS/collect-info.spec
+                    chmod +x rpm_build/SOURCES/collect_data.sh
+
+                    rpmbuild --define "_topdir $(pwd)/rpm_build" -bb rpm_build/SPECS/collect-info.spec
+                '''
             }
         }
 
-         stage('Archive Package') {
+        stage('Archive Packages') {
             steps {
-                archiveArtifacts artifacts: 'collect-info_1.0_all.deb', fingerprint: true
+                archiveArtifacts artifacts: 'rpm_build/RPMS/noarch/*.rpm', fingerprint: true
             }
         }
     }

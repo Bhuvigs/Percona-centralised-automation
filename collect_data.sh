@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# Ensure gum and sysstat (mpstat) are installed
+
+# Check if gum is installed
 if ! command -v gum &> /dev/null; then
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
-    sudo apt update && sudo apt install gum
+    echo "Error: 'gum' is not installed. Please install gum before running this script."
+    exit 1
 fi
 
 # Ensure gum and sysstat (mpstat) are installed

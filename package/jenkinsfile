@@ -7,3 +7,9 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/Bhuvigs/Percona-centralised-automation.git'
             }
         }
+
+         stage('Setup Environment') {
+            steps {
+                sh 'SUDO_ASKPASS=/etc/askpass-jenkins.sh sudo -A apt update && sudo -A apt install dpkg-dev -y'
+            }
+        }

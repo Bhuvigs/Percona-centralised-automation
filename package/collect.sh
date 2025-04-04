@@ -8,6 +8,7 @@ if ! command -v gum &> /dev/null; then
     sudo apt update && sudo apt install gum
 fi
 
+# Ensure gum and sysstat (mpstat) are installed
 if ! command -v mpstat &> /dev/null; then
     sudo apt update && sudo apt install sysstat -y
 fi
@@ -15,7 +16,7 @@ fi
 while true; do
     # Display a selection menu
     CHOICE=$(gum choose "CPU Utilization" "Memory Utilization" "Disk Utilization" "Network Utilization" "Exit")
-    
+
     case $CHOICE in 
         "CPU Utilization")
             #CPU_USAGE=$(mpstat 1 1 | awk '/all/ {print 100 - $NF "%"}')

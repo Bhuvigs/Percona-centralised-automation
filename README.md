@@ -1,11 +1,6 @@
 ## Percona-centralised-automation
 ## For Debian-package
 
-
-Note: Prerequiste
-***** Install gum in the shell script code *****
-
-
 Steps to follow.
 
 1. Build and run the dockerfile present in the git repo.

@@ -1,29 +1,55 @@
 #!/bin/bash
 
+set -e
 
-# Check if gum is installed
+# ----------------------------
+# Install Go if not installed
+# ----------------------------
+if ! command -v go &> /dev/null; then
+
+    GO_VERSION="1.23.8"
+    GO_TAR="go${GO_VERSION}.linux-amd64.tar.gz"
+    GO_URL="https://go.dev/dl/${GO_TAR}"
+    GO_INSTALL_DIR="/usr/local"
+
+    curl -LO "$GO_URL"
+    sudo rm -rf ${GO_INSTALL_DIR}/go
+    sudo tar -C $GO_INSTALL_DIR -xzf $GO_TAR
+    rm -f $GO_TAR
+
+    echo 'export PATH=$PATH:/usr/local/go/bin' | sudo tee -a /etc/profile
+    source /etc/profile
+fi
+
+# ----------------------------
+# Install Gum if not installed
+# ----------------------------
 if ! command -v gum &> /dev/null; then
-    echo "Error: 'gum' is not installed. Please install gum before running this script."
-    exit 1
+    go install github.com/charmbracelet/gum@latest
+    echo 'export PATH=$PATH:/root/go/bin' | sudo tee -a /etc/profile
+    source /etc/profile
 fi
 
-# Ensure gum and sysstat (mpstat) are installed
+# ----------------------------
+# Ensure sysstat (mpstat) is installed
+# ----------------------------
 if ! command -v mpstat &> /dev/null; then
-    sudo apt update && sudo apt install sysstat -y
+    sudo dnf install -y sysstat
 fi
 
+# ----------------------------
+# Start TUI Monitor Loop
+# ----------------------------
 while true; do
-    # Display a selection menu
     CHOICE=$(gum choose "CPU Utilization" "Memory Utilization" "Disk Utilization" "Network Utilization" "Exit")
 
     case $CHOICE in 
         "CPU Utilization")
-            #CPU_USAGE=$(mpstat 1 1 | awk '/all/ {print 100 - $NF "%"}')
             CPU_USAGE=$(mpstat 1 1 | awk '/all/ {print 100 - $NF "%"}' | head -n 1)
             gum style --border "rounded" --foreground 255 --background 27 --border-foreground 27 --align center --width 50 --margin "1 2" --padding "2 4" "CPU Usage: $CPU_USAGE"
             ;;
         "Memory Utilization")
-            MEM_USAGE=$(free -m | awk '/Mem:/ {print $3 "MB / " $2 "MB (" $3*100/$2 "%)"}')
+            MEM_USAGE=$(free -m | awk '/Mem:/ {print $3 "MB / " $2 "MB (" int($3*100/$2) "%)"}')
             gum style --border "rounded" --foreground 255 --background 28 --border-foreground 28 --align center --width 50 --margin "1 2" --padding "2 4" "Memory Usage: $MEM_USAGE"
             ;;
         "Disk Utilization")
@@ -50,3 +76,4 @@ while true; do
             ;;
     esac
 done
+

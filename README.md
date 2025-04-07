@@ -12,4 +12,4 @@ Steps to follow.
 4. Build the collect job pipeline to get the [collect_data-1.0-1.noarch.rpm] package.
 5. To run above package, exceute "sudo dnf install collect_data-1.0-1.noarch.rpm"
 6. Execute collect_data.sh command
-7. Finally we can see metrics of the server and choose the metrics that we need.
+7. Finally metrics of the server as can be seen in final output dir in the repo and metrics can be choosen as needed.

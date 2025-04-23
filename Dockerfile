@@ -43,5 +43,5 @@ USER jenkins
 # Expose Jenkins port
 EXPOSE 8080
 
-# Start Jenkins
+# Start Jenkinss
 CMD ["/usr/local/bin/jenkins.sh"]
